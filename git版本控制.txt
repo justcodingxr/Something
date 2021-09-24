@@ -1,0 +1,123 @@
+1.本地版本控制：本地拷贝
+2.集中化版本控制：如，SVN
+	服务端:存储了版本变化
+	客户端可以多个（小乌龟)：检出（相当于下载至本地）
+					       修改
+						   commit提交
+	多人协同开发
+	缺点：早期存在单点故障隐患，服务端只有一个，一旦有问题，所有客户端无法提交。
+3.分布式版本控制系统：如git
+	服务端：记录版本变化
+	客户端可以多个：每一个客户端本地也有各个版本控制记录，集中化svn没有。
+			服务器出问题，commit可以在本地进行，保存修改状态，待服务器正常后，恢复再提交。
+4.git安装与环境配置
+		git --version
+		git config --global user.name "lingxr" 设置用户名
+		git config --global user.email 2459616581@qq.com 
+		git config --list   					查看配置
+5.三种状态
+	committed已提交，保存至本地版本数据库
+	modified已修改，还没保存至数据库
+	staged已暂存，相当于做了版本标记，使之包含在下次提交的快照中，可能体提交多个文件
+6.三个区域
+		本地磁盘目录是工作区域，可以修改文件，然后add命令将其放入git暂存区，会打上标记，表示下次会提交。
+		commit提交到git仓库committed。
+7.本地使用仓库
+	在工作区打开gitbash，git init仓库初始化，出现.git默认隐藏文件夹
+	git status查看git状态
+	untracked表示未加入暂存区，git add git01.txt加入暂存区
+	new file表示暂存区新文件	
+	将暂存区文件退回工作区：“git rm --cached filename”   unstage表示非暂存
+	git commit filename -m "-m表示添加注释"（注意中文括号）
+	create mode表示添加成功
+	再次git status，nothing to commit没什么可以提交的
+	git ls-files查看仓库
+8.修改文件
+	git log查看提交日志；简化git log 5 --pretty=oneline  5表示显示最近5次
+	head->master 显示处于当前的版本
+	如果不add直接commit，git diff HEAD --filename 查看变动，暂存区和本地的不同
+9.文件版本切换
+	git log --pretty=oneline 显示各个版本
+	git reset --hard HEAD^   1个^表示回退一个版本
+	git reset --hard HEAD~10   表示回退10个版本
+	git reset --hard 4a07   表示直达4a07开头的版本  
+	git reflog				查看命令记录
+10.文件删除
+	工作文件删除后，git checkout -- filename检出可以从git下载会来（--后面有空格）
+	删除版本库里面的文件：git rm 
+	删除之后要commit
+11.远程仓库
+	下载：git clone https://github.com/justcodingxr/CPP.git
+	将github的代码地址复制
+12.本地文件推送向远程
+	先在远程创建仓库：reposities
+	ssh方式和https方式
+	ssh:
+		1.使用本地git客户端生成公钥和私钥
+		ssh-keygen -t rsa -C "2459616581@qq.com"
+		enter 覆盖 不断enter
+		Your identification has been saved in /c/Users/lenovo/.ssh/id_rsa
+		Your public key has been saved in /c/Users/lenovo/.ssh/id_rsa.pub（公钥）
+
+		2.复制公钥内容上传github，私钥放本地
+		setting->SSH and GPG keys 添加标题，复制
+		(直接赋值粘贴 .ssh的文件会破坏格式需要打开 git bash,
+		输入命令clip < ~/.ssh/id_rsa.pub
+		回车后就复制到剪切板了，到github添加ssh keys的地方直接就能粘贴上)
+		
+		3.测试链接，公钥私钥是否匹配
+		ssh -T git@github.com 
+		The authenticity of host 'github.com (207.97.227.239)' can't be established.
+		# RSA key fingerprint is 16:27:ac:a5:76:28:2d:36:63:1b:56:4d:eb:df:a6:48.
+		# Are you sure you want to continue connecting (yes/no)?
+		这是正常的，你输入 yes 回车既可。
+		Hi justcodingxr! You've successfully authenticated
+		
+		4.远程和本地绑定
+		github定位到仓库，切换到ssh，push an exiting reposities from command line:
+		通常在不在主干分支操作，而是从主干master开辟多个新的分支，调试好后，合并到master;
+		git remote origin(远程仓库对应别名，对远程仓库操作全改为对origin操作)  git@github.com:justcodingxr/远程仓库名.git (将远程仓库地址和本地地址origin绑定）
+		git branch -M main 本地创建分支main （本地主干master就叫main了，git branch -M|m 旧分支名 新分支名  重命名分支;如果没有旧的分支名，默认为master）
+		5.推送
+		git push -u origin main（将main分支推送至远程仓库别名origin，
+		加了参数-u后，以后即可直接用git push 代替git push origin main）
+	https方式比较简单
+12.本地分支操作
+	git checkout branch1(分支名） 切换本地分支
+	git checkout -b branch2      创建新的分支（创建好后会自动转到新的分支）
+	git branch -d 分支名          删除分支
+	git branch                   查看分支
+	git merge branch             合并分支（先来到主干，在合并其他分支，其他分支的修改更新到master，不同内容添加到master）
+	git branch -M|m 旧分支名 新分支名  重命名分支
+13.远程分支操作
+	git branch -a查看本地和远程分支
+	git push  origin branch1（将branch1分支推送至远程仓库别名origin，若branch1分支在远程存在则更新，否则创建）
+	git checkout -b local-branch origin/remote-branch 拉取远程分支到本地创建新分支
+	git push origin:remote_branch 删除远程分支 
+	git clone url  拉取远程分支，不同的远程分支下的url是独立的，形式上一个仓库名。
+14.冲突解决，视情况而定
+	（1）合并，修改同名文件合并时更新，不同命时添加；
+	不同分支操作修改同一文件同一内容，合并时会冲突；
+	处理：手动处理，再commit
+	（2）多人协同冲突
+	多用户操作同一分支同一内容，同时push到远程
+	处理：先执行"git pull"，再add,commit
+15.标签管理
+	打标签指定版本
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
